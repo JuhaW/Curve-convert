@@ -14,6 +14,7 @@ bpy.types.Object.names = StringProperty(name = "", default = "")
 bpy.types.Object.rscale = BoolProperty(name = "Respect Scale?", default = False)
 
 def CurveConvert(self, context):
+
 	bpy.ops.object.mode_set(mode='OBJECT')
 	o = context.object; na = []; jna = []  
 	if "," in o.names:
