@@ -14,6 +14,8 @@ bpy.types.Object.names = StringProperty(name = "", default = "")
 bpy.types.Object.rscale = BoolProperty(name = "Respect Scale?", default = False)
 
 def CurveConvert(self, context):
+
+    bpy.ops.object.mode_set(mode='OBJECT')
     o = context.object; na = []; jna = []  
     if "," in o.names:
         na = o.names.split(","); del na[len(na) - 1]
@@ -126,6 +128,9 @@ class CurveConversionUpdateAll(bpy.types.Operator):
     def poll(self, context):
         return context.object.type == "CURVE"    
     def execute(self, context):
+    	
+    	mode = bpy.context.object.mode
+		bpy.ops.object.mode_set(mode='OBJECT')
         o = context.object
         na = []
         for obj in bpy.data.objects:
@@ -143,6 +148,7 @@ class CurveConversionUpdateAll(bpy.types.Operator):
         else:
             self.report({"INFO"}, str(len(na)) + " Objects Updated")
         o.select = True; context.scene.objects.active = o
+        bpy.ops.object.mode_set(mode=mode)
         return {"FINISHED"}
         
                 
@@ -156,29 +162,27 @@ class CurveConversionPanel(bpy.types.Panel):
 
     def draw(self, context):
         layout = self.layout; o = context.object
-        if context.mode not in ("EDIT_MESH", "EDIT_CURVE"):
-            if o != None:
-                if o.type == "MESH":
-                    layout.label("Curve Name:", icon = "OUTLINER_OB_CURVE")
-                    if "," in o.names:
-                        li = o.names.split(","); del li[len(li) - 1]
-                        for i in li:
-                            layout.label(i)
-                    else:
-                        layout.prop_search(o, "names",  context.scene, "objects"); layout.prop(o, "rscale", icon = "MAN_SCALE")
-                    layout.operator("mesh.curve_convert_update", icon = "FILE_REFRESH")
-                elif o.type == "CURVE":
-                    layout.operator("mesh.curve_convert_add", icon = "MESH_CUBE")
-                    if len(context.selected_objects) > 1:
-                        layout.operator("mesh.curve_convert_add_multiple", icon = "GROUP")
-                    layout.operator("mesh.curve_convert_update_all", icon = "FILE_REFRESH")
+        
+        if o != None:
+            if o.type == "MESH":
+                layout.label("Curve Name:", icon = "OUTLINER_OB_CURVE")
+                if "," in o.names:
+                    li = o.names.split(","); del li[len(li) - 1]
+                    for i in li:
+                        layout.label(i)
                 else:
-                    layout.label("Object Needs To Be Curve Or Mesh Object", icon = "ERROR")
+                    layout.prop_search(o, "names",  context.scene, "objects"); layout.prop(o, "rscale", icon = "MAN_SCALE")
+                layout.operator("mesh.curve_convert_update", icon = "FILE_REFRESH")
+            elif o.type == "CURVE":
+                layout.operator("mesh.curve_convert_add", icon = "MESH_CUBE")
+                if len(context.selected_objects) > 1:
+                    layout.operator("mesh.curve_convert_add_multiple", icon = "GROUP")
+                layout.operator("mesh.curve_convert_update_all", icon = "FILE_REFRESH")
             else:
-                layout.label("Select Curve Or Mesh Object", icon = "ERROR") 
+                layout.label("Object Needs To Be Curve Or Mesh Object", icon = "ERROR")
         else:
-            layout.label("Exit Edit Mode To Use Curve Conversion", icon = "ERROR")      
-
+            layout.label("Select Curve Or Mesh Object", icon = "ERROR") 
+        
 def register():
     bpy.utils.register_module(__name__)
 def unregister():
