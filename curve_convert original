@@ -130,7 +130,7 @@ class CurveConversionUpdateAll(bpy.types.Operator):
     def execute(self, context):
     	
     	mode = bpy.context.object.mode
-		bpy.ops.object.mode_set(mode='OBJECT')
+	bpy.ops.object.mode_set(mode='OBJECT')
         o = context.object
         na = []
         for obj in bpy.data.objects:
